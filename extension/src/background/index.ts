@@ -175,8 +175,16 @@ async function processDayRolloverIfNeeded(): Promise<void> {
     }
   }
 
-  if (storage.pendingPlanChange && storage.pendingPlanChange.effectiveDate <= todayKey && taperPlan) {
-    taperPlan = { ...taperPlan, ...storage.pendingPlanChange.changes };
+  const pending = storage.pendingPlanChange;
+  if (pending && pending.effectiveDate <= todayKey) {
+    if (taperPlan) taperPlan = { ...taperPlan, ...pending.changes };
+    if (Object.keys(pending.baselineChanges).length > 0) {
+      blocklist = blocklist.map((entry) =>
+        entry.id in pending.baselineChanges
+          ? { ...entry, baselineMinutes: pending.baselineChanges[entry.id]! }
+          : entry,
+      );
+    }
   }
 
   await setStorage({
@@ -199,10 +207,13 @@ async function tick(): Promise<void> {
   await recomputeRules();
 }
 
-browser.runtime.onInstalled.addListener(() => {
+browser.runtime.onInstalled.addListener((details) => {
   void browser.alarms.create(SCHEDULE_ALARM, { periodInMinutes: 1 });
   void browser.alarms.create(FLUSH_ALARM, { periodInMinutes: 0.5 });
   void tick();
+  if (details.reason === "install") {
+    void browser.tabs.create({ url: browser.runtime.getURL("src/onboarding/onboarding.html") });
+  }
 });
 
 // Covers the case where the device was asleep/off when the last scheduled alarm should

@@ -20,14 +20,18 @@ import { minutesToTimeString, timeStringToMinutes } from "../lib/time";
 import { toLocalDateKey } from "../lib/stats";
 import { addDaysToDateKey } from "../lib/dates";
 import { buildTaperConfigForEntry, computeDayIndex } from "../lib/taper";
+import { SITE_CATALOG } from "../data/siteCatalog";
+import { AllowanceStepper } from "../components/AllowanceStepper";
 import {
-  CATEGORIES,
   DEFAULT_SCHEDULE,
   type BlocklistEntry,
   type DailyTaperRecord,
+  type PendingPlanChange,
   type Schedule,
   type TaperPlanState,
 } from "../shared/types";
+
+const CATEGORY_LABELS = SITE_CATALOG.map((c) => c.label);
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -63,13 +67,11 @@ export function Options() {
   const [todayStats, setTodayStats] = useState<Record<string, number>>({});
   const [taperPlan, setTaperPlan] = useState<TaperPlanState | null>(null);
   const [taperHistory, setTaperHistory] = useState<Record<string, DailyTaperRecord>>({});
-  const [pendingPlanChange, setPendingPlanChange] = useState<
-    { effectiveDate: string; changes: Partial<TaperPlanState> } | null
-  >(null);
+  const [pendingPlanChange, setPendingPlanChange] = useState<PendingPlanChange | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [domainInput, setDomainInput] = useState("");
-  const [categoryInput, setCategoryInput] = useState<string>(CATEGORIES[0]);
+  const [categoryInput, setCategoryInput] = useState<string>(CATEGORY_LABELS[0]!);
   const [bucketInput, setBucketInput] = useState<UsageBucket>("1_2h");
   const [addError, setAddError] = useState<string | null>(null);
 
@@ -79,6 +81,9 @@ export function Options() {
   // be priced (Section 2.3) before it's staged, without mutating the currently-active plan.
   const [draftPlan, setDraftPlan] = useState<TaperPlanState>(freshTaperPlan());
   const [planCostPreview, setPlanCostPreview] = useState<number | null>(null);
+
+  // Allowances screen (Section 6): entries with a pending edit not yet staged/saved.
+  const [draftBaselines, setDraftBaselines] = useState<Record<string, number>>({});
 
   async function reload() {
     const storage = await getStorage();
@@ -198,7 +203,11 @@ export function Options() {
   async function handleConfirmPlanChange() {
     if (!taperPlan) return;
     const effectiveDate = toLocalDateKey(nextLocalMidnight(new Date()));
-    const change = { effectiveDate, changes: draftPlan };
+    const change: PendingPlanChange = {
+      effectiveDate,
+      changes: draftPlan,
+      baselineChanges: pendingPlanChange?.baselineChanges ?? {},
+    };
     setPendingPlanChange(change);
     await setStorage({ pendingPlanChange: change });
     setPlanCostPreview(null);
@@ -206,7 +215,28 @@ export function Options() {
 
   async function handleCancelPendingChange() {
     setPendingPlanChange(null);
+    setDraftBaselines({});
     await setStorage({ pendingPlanChange: null });
+  }
+
+  async function handleStageBaselineChanges() {
+    if (!taperPlan) return;
+    const changedEntries = blocklist.filter(
+      (entry) => draftBaselines[entry.id] !== undefined && draftBaselines[entry.id] !== entry.baselineMinutes,
+    );
+    if (changedEntries.length === 0) return;
+
+    const effectiveDate = toLocalDateKey(nextLocalMidnight(new Date()));
+    const baselineChanges = { ...pendingPlanChange?.baselineChanges };
+    for (const entry of changedEntries) baselineChanges[entry.id] = draftBaselines[entry.id]!;
+
+    const change: PendingPlanChange = {
+      effectiveDate,
+      changes: pendingPlanChange?.changes ?? {},
+      baselineChanges,
+    };
+    setPendingPlanChange(change);
+    await setStorage({ pendingPlanChange: change });
   }
 
   async function handleSaveWorstOffender(entryId: string | null) {
@@ -258,8 +288,53 @@ export function Options() {
       <p className="subtitle">
         {taperPlan?.enabled
           ? "Taper plan active — allowances shrink daily; the schedule below is unused while this is on."
-          : "Free plan: a manual blocklist and schedule, with today's stats only."}
+          : "Free plan: a manual blocklist and schedule, with today's stats only."}{" "}
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            void browser.tabs.create({ url: browser.runtime.getURL("src/onboarding/onboarding.html") });
+          }}
+        >
+          Redo setup
+        </a>
       </p>
+
+      {taperPlan?.enabled && blocklist.length > 0 && (
+        <section>
+          <h2>Allowances</h2>
+          <p className="subtitle" style={{ marginBottom: 12 }}>
+            Every site's daily limit, in one place. Changes start tomorrow.
+          </p>
+          <div className="allowance-editor-list">
+            {blocklist.map((entry) => (
+              <AllowanceStepper
+                key={entry.id}
+                label={entry.domain}
+                minutes={draftBaselines[entry.id] ?? pendingPlanChange?.baselineChanges[entry.id] ?? entry.baselineMinutes}
+                onChange={(m) => setDraftBaselines((d) => ({ ...d, [entry.id]: m }))}
+              />
+            ))}
+          </div>
+          <button
+            onClick={() => void handleStageBaselineChanges()}
+            disabled={Object.keys(draftBaselines).length === 0}
+            style={{ marginTop: 12 }}
+          >
+            Save (starting tomorrow)
+          </button>
+          {pendingPlanChange && Object.keys(pendingPlanChange.baselineChanges).length > 0 && (
+            <p className="saved">
+              {Object.keys(pendingPlanChange.baselineChanges).length} allowance change
+              {Object.keys(pendingPlanChange.baselineChanges).length === 1 ? "" : "s"} scheduled for{" "}
+              {pendingPlanChange.effectiveDate}.{" "}
+              <button className="remove" onClick={() => void handleCancelPendingChange()}>
+                Cancel
+              </button>
+            </p>
+          )}
+        </section>
+      )}
 
       <section>
         <h2>Blocklist</h2>
@@ -272,7 +347,7 @@ export function Options() {
             onKeyDown={(e) => e.key === "Enter" && void handleAddDomain()}
           />
           <select value={categoryInput} onChange={(e) => setCategoryInput(e.target.value)}>
-            {CATEGORIES.map((c) => (
+            {CATEGORY_LABELS.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>

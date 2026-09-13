@@ -42,6 +42,13 @@ export interface TaperPlanState {
   reconciledAt: string | null;
 }
 
+export interface PendingPlanChange {
+  effectiveDate: string;
+  changes: Partial<TaperPlanState>;
+  /** Per-entry id -> new baselineMinutes, staged from the Allowances screen. */
+  baselineChanges: Record<string, number>;
+}
+
 export interface DailyTaperRecord {
   minutesUsedByDomain: Record<string, number>;
   allowanceByDomain: Record<string, number>;
@@ -68,8 +75,11 @@ export interface StorageSchema {
   taperHistory: Record<string, DailyTaperRecord>;
   escapeValveHistory: { usedAt: number; reason: string }[];
   /** A "soft" plan-level change (Section 2.3) staged at save time, applied at the next local
-   *  midnight — never immediately, so it can't be used to undo today's already-locked allowance. */
-  pendingPlanChange: { effectiveDate: string; changes: Partial<TaperPlanState> } | null;
+   *  midnight — never immediately, so it can't be used to undo today's already-locked allowance.
+   *  `changes` covers plan-wide fields (pace, floor, ...); `baselineChanges` covers per-site
+   *  allowance edits from the Allowances screen. Both stage into the same pending record so
+   *  editing one doesn't clobber a change already staged from the other screen. */
+  pendingPlanChange: PendingPlanChange | null;
   /** The local date this device last ran day-rollover processing for (finalizing the previous
    *  day's taper history, applying a pending plan change, checking the 48h reconciliation). */
   lastProcessedDateKey: string | null;
@@ -97,8 +107,5 @@ export const DEFAULT_STORAGE: StorageSchema = {
   lastProcessedDateKey: null,
   pendingEscapeValveRequest: null,
 };
-
-export const CATEGORIES = ["Social", "Video", "News", "Shopping", "Other"] as const;
-export type Category = (typeof CATEGORIES)[number];
 
 export const DEFAULT_BASELINE_MINUTES = 90;

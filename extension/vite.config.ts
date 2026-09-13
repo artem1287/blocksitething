@@ -9,6 +9,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         blocked: "src/blocked/blocked.html",
+        onboarding: "src/onboarding/onboarding.html",
       },
     },
   },
