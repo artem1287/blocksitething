@@ -1,0 +1,941 @@
+<title>Taper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340;9..144,480;9..144,560;9..144,650&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ground: #FAF6EF;
+    --surface: #FFFFFF;
+    --surface-sunken: #F1EAE0;
+    --ink: #221B13;
+    --ink-soft: #4A4038;
+    --muted: #7A6E60;
+    --line: rgba(34, 27, 19, 0.13);
+    --line-strong: rgba(34, 27, 19, 0.22);
+    --accent: #C2551A;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #EBCBA6;
+    --accent-soft-ink: #6B4420;
+    --bar-track: #E8DCC9;
+    --shadow: 0 1px 2px rgba(34, 20, 8, 0.06), 0 12px 28px -14px rgba(34, 20, 8, 0.22);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #16120C;
+      --surface: #1E1810;
+      --surface-sunken: #251E14;
+      --ink: #F3E9D8;
+      --ink-soft: #D9C9B4;
+      --muted: #A6947E;
+      --line: rgba(243, 233, 216, 0.14);
+      --line-strong: rgba(243, 233, 216, 0.24);
+      --accent: #E2762F;
+      --accent-ink: #1A1005;
+      --accent-soft: #3B2A17;
+      --accent-soft-ink: #F0C89B;
+      --bar-track: #362A1B;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 32px -16px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #16120C;
+    --surface: #1E1810;
+    --surface-sunken: #251E14;
+    --ink: #F3E9D8;
+    --ink-soft: #D9C9B4;
+    --muted: #A6947E;
+    --line: rgba(243, 233, 216, 0.14);
+    --line-strong: rgba(243, 233, 216, 0.24);
+    --accent: #E2762F;
+    --accent-ink: #1A1005;
+    --accent-soft: #3B2A17;
+    --accent-soft-ink: #F0C89B;
+    --bar-track: #362A1B;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 32px -16px rgba(0, 0, 0, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Karla", "Segoe UI", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .display {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 560;
+    line-height: 1.1;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  .wrap-wide {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 28px;
+  }
+
+  /* ---- header ---- */
+
+  header.site {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--ground);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    max-width: 980px;
+    margin: 0 auto;
+    gap: 16px;
+  }
+
+  .wordmark {
+    font-family: "Fraunces", serif;
+    font-weight: 650;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wordmark .dot { color: var(--accent); }
+
+  nav.links {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+
+  nav.links a { text-decoration: none; }
+  nav.links a:hover { color: var(--accent); }
+
+  @media (max-width: 680px) {
+    nav.links { display: none; }
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-family: "Karla", sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-ink);
+    box-shadow: var(--shadow);
+  }
+
+  .btn-primary:hover { filter: brightness(1.06); }
+
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--line-strong);
+    color: var(--ink);
+    font-size: 13.5px;
+    padding: 9px 16px;
+  }
+
+  .btn-small { font-size: 13px; padding: 8px 14px; }
+
+  /* ---- hero ---- */
+
+  .hero {
+    padding: 76px 0 64px;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 56px;
+    align-items: center;
+  }
+
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; }
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-soft-ink);
+    background: var(--accent-soft);
+    padding: 6px 12px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .eyebrow .pulse {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  h1.hero-title {
+    font-size: clamp(34px, 5vw, 50px);
+  }
+
+  .hero-sub {
+    margin-top: 20px;
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+
+  .hero-cta-row {
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .fine-print {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ---- curve chart ---- */
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 28px 24px 22px;
+    box-shadow: var(--shadow);
+  }
+
+  .chart-card h3 {
+    font-size: 13px;
+    font-family: "IBM Plex Mono", monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .chart-card .chart-tier {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+  }
+
+  .bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    height: 150px;
+  }
+
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .bar-track {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    background: var(--bar-track);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    width: 100%;
+    background: var(--accent);
+    border-radius: 6px 6px 0 0;
+  }
+
+  .bar-fill.is-floor { background: var(--accent-soft-ink); opacity: 0.55; }
+
+  .bar-value {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .bar-label {
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  .chart-foot {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ---- generic section ---- */
+
+  section { padding: 72px 0; }
+  section.tight { padding: 56px 0; }
+  .section-alt { background: var(--surface-sunken); }
+
+  .kicker {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  h2.section-title {
+    font-size: clamp(26px, 3.4vw, 34px);
+    margin-bottom: 18px;
+  }
+
+  .lede {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+
+  /* ---- anti-cold-turkey ---- */
+
+  .contrast-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 680px) {
+    .contrast-grid { grid-template-columns: 1fr; }
+  }
+
+  .contrast-card {
+    border-radius: 14px;
+    padding: 26px 24px;
+    border: 1px solid var(--line);
+  }
+
+  .contrast-card.wall {
+    background: var(--surface-sunken);
+  }
+
+  .contrast-card.ramp {
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    border-color: var(--line-strong);
+  }
+
+  .contrast-card h4 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 19px;
+    margin-bottom: 12px;
+  }
+
+  .mini-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 64px;
+    margin-bottom: 18px;
+  }
+
+  .mini-bars > div {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+  }
+
+  .contrast-card.wall .mini-bars > div:nth-child(1) { height: 100%; background: var(--line-strong); }
+  .contrast-card.wall .mini-bars > div:nth-child(n+2) { height: 4%; background: var(--line-strong); }
+
+  .contrast-card.ramp .mini-bars > div { background: var(--accent); }
+  .contrast-card.ramp .mini-bars > div:nth-child(1) { height: 100%; }
+  .contrast-card.ramp .mini-bars > div:nth-child(2) { height: 82%; }
+  .contrast-card.ramp .mini-bars > div:nth-child(3) { height: 66%; }
+  .contrast-card.ramp .mini-bars > div:nth-child(4) { height: 52%; }
+  .contrast-card.ramp .mini-bars > div:nth-child(5) { height: 40%; }
+  .contrast-card.ramp .mini-bars > div:nth-child(6) { height: 33%; opacity: 0.6; }
+
+  .contrast-card p { color: var(--ink-soft); font-size: 15px; }
+
+  /* ---- how it works ---- */
+
+  .steps {
+    counter-reset: step;
+    margin-top: 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 20px;
+    padding: 26px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .step:last-child { border-bottom: 1px solid var(--line); }
+
+  .step-num {
+    counter-increment: step;
+    font-family: "Fraunces", serif;
+    font-weight: 560;
+    font-size: 28px;
+    color: var(--accent);
+  }
+
+  .step-num::before { content: counter(step, decimal-leading-zero); }
+
+  .step h4 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .step p { color: var(--ink-soft); max-width: 56ch; }
+
+  /* ---- blocked-screen mockup ---- */
+
+  .mock-blocked {
+    margin-top: 20px;
+    background: #1A1509;
+    color: #F3E9D8;
+    border-radius: 14px;
+    padding: 28px 26px;
+    max-width: 420px;
+    box-shadow: var(--shadow);
+  }
+
+  .mock-blocked .mock-chip {
+    display: inline-block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: #E2762F;
+    color: #1A1005;
+    padding: 4px 9px;
+    border-radius: 5px;
+    margin-bottom: 14px;
+  }
+
+  .mock-blocked h5 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 19px;
+    margin-bottom: 10px;
+  }
+
+  .mock-blocked p { font-size: 14px; color: #D9C9B4; margin: 6px 0; }
+  .mock-blocked .mock-suggest { font-style: italic; color: #F0C89B; }
+
+  /* ---- comparison table ---- */
+
+  .table-scroll { overflow-x: auto; margin-top: 40px; }
+
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+    font-size: 14.5px;
+  }
+
+  table.compare th, table.compare td {
+    text-align: left;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  table.compare thead th {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  table.compare tbody tr:first-child td {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    font-weight: 600;
+  }
+
+  table.compare tbody th {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  table.compare .yes { color: var(--accent); font-weight: 700; }
+  table.compare .no { color: var(--muted); }
+
+  /* ---- founder note ---- */
+
+  .note-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 36px;
+    margin-top: 40px;
+    box-shadow: var(--shadow);
+  }
+
+  .note-card p { color: var(--ink-soft); font-size: 16.5px; }
+  .note-card p + p { margin-top: 14px; }
+  .note-sig { margin-top: 20px; font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--muted); }
+
+  /* ---- pricing ---- */
+
+  .price-banner {
+    background: var(--accent-soft);
+    color: var(--accent-soft-ink);
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .price-banner strong { font-family: "Fraunces", serif; font-size: 19px; }
+
+  .price-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  @media (max-width: 680px) {
+    .price-cards { grid-template-columns: 1fr; }
+  }
+
+  .price-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 26px;
+    background: var(--surface);
+  }
+
+  .price-card.featured {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+
+  .price-card .tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .price-card .amount {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 34px;
+  }
+
+  .price-card .amount span { font-size: 15px; font-family: "Karla", sans-serif; color: var(--muted); font-weight: 400; }
+
+  .price-card .was {
+    text-decoration: line-through;
+    color: var(--muted);
+    font-size: 14px;
+    margin-left: 8px;
+  }
+
+  .price-card ul { list-style: none; padding: 0; margin: 16px 0 0; font-size: 14px; color: var(--ink-soft); }
+  .price-card li { padding: 5px 0; }
+  .price-card li::before { content: "— "; color: var(--muted); }
+
+  .price-note { font-size: 13px; color: var(--muted); margin-top: 18px; }
+
+  /* ---- faq ---- */
+
+  .faq-item {
+    border-top: 1px solid var(--line);
+    padding: 22px 0;
+  }
+  .faq-item:last-child { border-bottom: 1px solid var(--line); }
+
+  .faq-item h4 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 17.5px;
+    margin-bottom: 8px;
+  }
+
+  .faq-item p { color: var(--ink-soft); font-size: 15px; max-width: 60ch; }
+
+  /* ---- final cta ---- */
+
+  .final-cta {
+    text-align: center;
+    padding: 80px 0;
+  }
+
+  .final-cta h2 { font-size: clamp(28px, 4vw, 38px); }
+  .final-cta .lede { margin: 16px auto 0; }
+  .final-cta .hero-cta-row { justify-content: center; margin-top: 30px; }
+
+  /* ---- footer ---- */
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 40px 0 60px;
+  }
+
+  .footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { text-decoration: underline; text-decoration-color: var(--line-strong); }
+
+  #privacy {
+    margin-top: 36px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+    color: var(--ink-soft);
+    max-width: 68ch;
+  }
+
+  #privacy h3 { font-size: 18px; margin-bottom: 14px; }
+  #privacy h4 { font-family: "Karla", sans-serif; font-weight: 700; font-size: 14.5px; color: var(--ink); margin: 20px 0 6px; }
+  #privacy p { margin: 8px 0; }
+</style>
+
+<header class="site">
+  <div class="nav-row">
+    <div class="wordmark">Taper<span class="dot">.</span></div>
+    <nav class="links">
+      <a href="#how">How it works</a>
+      <a href="#compare">Compare</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-primary btn-small" href="https://raw.githubusercontent.com/artem1287/blocksitething/main/releases/taper-extension-latest.zip">Get the test build</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap-wide hero-grid">
+    <div>
+      <span class="eyebrow"><span class="pulse"></span>Early test build · v0.1</span>
+      <h1 class="hero-title">Cut your screen time starting today.</h1>
+      <p class="hero-sub">Not eventually. Not after a cold-turkey wall you'll disable by Thursday. Taper drops your daily allowance a little at a time — starting with a real cut today, on a pace you choose.</p>
+      <div class="hero-cta-row">
+        <a class="btn btn-primary" href="https://raw.githubusercontent.com/artem1287/blocksitething/main/releases/taper-extension-latest.zip">Get the test build →</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <p class="fine-print">Chrome, Edge, or Firefox. Free during testing — no account, no payment.</p>
+    </div>
+    <div class="chart-card">
+      <h3>Your allowance, Gentle pace</h3>
+      <div class="chart-tier">90 min/day baseline → 25 min floor</div>
+      <div class="bars">
+        <div class="bar-col">
+          <span class="bar-value mono">76</span>
+          <div class="bar-track"><div class="bar-fill" style="height: 100%"></div></div>
+          <span class="bar-label">Day 1</span>
+        </div>
+        <div class="bar-col">
+          <span class="bar-value mono">55</span>
+          <div class="bar-track"><div class="bar-fill" style="height: 72%"></div></div>
+          <span class="bar-label">Week 2</span>
+        </div>
+        <div class="bar-col">
+          <span class="bar-value mono">40</span>
+          <div class="bar-track"><div class="bar-fill" style="height: 53%"></div></div>
+          <span class="bar-label">Week 4</span>
+        </div>
+        <div class="bar-col">
+          <span class="bar-value mono">29</span>
+          <div class="bar-track"><div class="bar-fill" style="height: 38%"></div></div>
+          <span class="bar-label">Week 6</span>
+        </div>
+        <div class="bar-col">
+          <span class="bar-value mono">25</span>
+          <div class="bar-track"><div class="bar-fill is-floor" style="height: 33%"></div></div>
+          <span class="bar-label">Week 8+</span>
+        </div>
+      </div>
+      <div class="chart-foot">Real curve math, not illustrative: 15% front-load cut, then 15%/week, holding at your floor.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section-alt">
+  <div class="wrap">
+    <span class="kicker">Why hard blocks don't stick</span>
+    <h2 class="section-title">A wall invites you to knock it down. A ramp doesn't.</h2>
+    <p class="lede">Freedom, Cold Turkey, and most blockers give you one lever: on or off. The willpower cost of "off" is fixed and low — one click, one password, one "just this once" — so it gets pulled the first bad day. A shrinking allowance has no single moment that feels like giving up. There's always still some time left; there's just less of it than yesterday.</p>
+    <div class="contrast-grid">
+      <div class="contrast-card wall">
+        <div class="mini-bars"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        <h4>Hard block</h4>
+        <p>100% access, then 0%, the moment a schedule or a password stands between you and the site. One disable and the whole thing is off.</p>
+      </div>
+      <div class="contrast-card ramp">
+        <div class="mini-bars"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        <h4>Taper's allowance</h4>
+        <p>A little less every day, front-loaded so day one already feels different, holding at a maintenance floor you choose instead of chasing zero.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <span class="kicker">How it works</span>
+    <h2 class="section-title">Three decisions, then it runs itself.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num"></div>
+        <div>
+          <h4>Name your worst offender</h4>
+          <p>The one site you actually can't put down. It gets a hard block during hours you set — no allowance, no exceptions — starting day one, whichever pace you pick.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div>
+          <h4>Pick your pace</h4>
+          <p>Gentle (15% off, then 15%/week), Moderate (20%, then 25%/week), or Aggressive (25%, then 40%/week). Every tier front-loads a real cut on day one — you don't wait a week to see anything change.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num"></div>
+        <div>
+          <h4>Watch your allowance shrink</h4>
+          <p>When today's minutes run out, you land on a screen that tells you what to do instead — not just a wall. One "I need a few more minutes" pass per week, with a short wait built in, for the days that are genuinely hard.</p>
+          <div class="mock-blocked">
+            <span class="mock-chip">Blocked right now</span>
+            <h5>instagram.com is blocked right now</h5>
+            <p>You've used 76 of 76 minutes here today.</p>
+            <p class="mock-suggest">Try instead: Step outside for a two-minute walk.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="compare" class="section-alt">
+  <div class="wrap-wide">
+    <span class="kicker">How it compares</span>
+    <h2 class="section-title">Most blockers stop at "on or off."</h2>
+    <p class="lede">Freedom, Cold Turkey, and Opal are all genuinely good at the hard block. That's the whole toolkit, though — and a hard block you can disable in three clicks only works until the day you do.</p>
+    <div class="table-scroll">
+      <table class="compare">
+        <thead>
+          <tr><th>App</th><th>Approach</th><th>Suggests what to do instead</th><th>Price</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Taper</th>
+            <td>Shrinking daily allowance, plus one hard-blocked site</td>
+            <td class="yes">Yes — on the block screen itself</td>
+            <td>Free in testing → ~$7/mo planned</td>
+          </tr>
+          <tr>
+            <th>Freedom</th>
+            <td>Hard block, scheduled sessions</td>
+            <td class="no">No</td>
+            <td>$8.99/mo · $3.33/mo billed annually</td>
+          </tr>
+          <tr>
+            <th>Cold Turkey</th>
+            <td>Hard block, lockable</td>
+            <td class="no">No</td>
+            <td>Free tier + one-time Pro purchase</td>
+          </tr>
+          <tr>
+            <th>Opal</th>
+            <td>Hard block, "Hard Mode" can't be turned off</td>
+            <td class="no">No</td>
+            <td>$19.99/mo · $8.29/mo billed annually</td>
+          </tr>
+          <tr>
+            <th>One Sec</th>
+            <td>A pause/breathing screen, plus optional hard block</td>
+            <td class="no">Journaling &amp; reflection prompts</td>
+            <td>Free tier + paid plans</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="price-note">Competitor pricing as published on their own sites at time of writing — check theirs before deciding, prices change.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="kicker">Where this stands</span>
+    <h2 class="section-title">No customers yet — that's the point of this build.</h2>
+    <div class="note-card">
+      <p>I'm building Taper because every blocker I tried was a light switch, and my actual problem was never "can I turn this off" — it was that turning it off was too easy. Nothing here is proven at scale yet; it's a working extension I use myself and want a handful of other people to genuinely try before it's anything more than that.</p>
+      <p>If the pitch above rings true for you, I'd rather have your honest "this didn't work" than a polished testimonial I wrote myself.</p>
+      <div class="note-sig">— built by a solo developer, currently in private testing</div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="section-alt">
+  <div class="wrap">
+    <span class="kicker">Pricing</span>
+    <h2 class="section-title">Free right now. Here's where it's headed.</h2>
+    <div class="price-banner">
+      <span><strong>Free during testing.</strong> No account, no card, no time limit while the extension is in this state.</span>
+    </div>
+    <div class="price-cards">
+      <div class="price-card featured">
+        <span class="tag">Planned · Annual</span>
+        <div class="amount">$3.33<span>/mo, billed $39.99/yr</span></div>
+        <div><span class="was">$83.88/yr</span> <span style="font-size:12px;color:var(--muted);">at the monthly rate</span></div>
+        <ul>
+          <li>Everything in monthly</li>
+          <li>7-day free trial</li>
+          <li>Cross-device sync (once accounts ship)</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <span class="tag">Planned · Monthly</span>
+        <div class="amount">$6.99<span>/mo</span></div>
+        <ul>
+          <li>Full taper plan, all pace tiers</li>
+          <li>Streaks, milestones, history</li>
+          <li>Escape valve</li>
+        </ul>
+      </div>
+    </div>
+    <p class="price-note">These are the numbers I'm currently planning to charge once billing exists — shown now so early feedback can shape them, not because anything is live. Nobody is charged anything today.</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <span class="kicker">FAQ</span>
+    <h2 class="section-title">Before you install it</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <h4>Will it actually block me?</h4>
+        <p>Yes, but expect it to feel different from Freedom or Cold Turkey. There's no wall on day one for most sites — just a smaller allowance than you're used to, shrinking further each day. Your one named "worst offender" does get a real, unconditional hard block during hours you set.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What if I have a real emergency?</h4>
+        <p>The escape valve: one pass per rolling seven days, account-wide. It asks what's going on, makes you wait about ten minutes, then grants a bonus for that day only — tomorrow's allowance is completely unaffected.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Does it work on my phone?</h4>
+        <p>Not yet. This test build is a Chrome/Edge/Firefox extension only — desktop browsing. A mobile version is a later, separate decision, not something in scope right now.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Is my browsing data private?</h4>
+        <p>Your usage data stays on your device — there's no account or server sync in this build, and nothing about which sites you visit is transmitted anywhere. See the privacy note in the footer for the full picture.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="wrap">
+    <span class="kicker">Ready?</span>
+    <h2>Try the pace that fits, not the wall you'll disable.</h2>
+    <p class="lede" style="margin-left:auto;margin-right:auto;">One-time install, about a minute. Free while it's in testing.</p>
+    <div class="hero-cta-row">
+      <a class="btn btn-primary" href="https://raw.githubusercontent.com/artem1287/blocksitething/main/releases/taper-extension-latest.zip">Get the test build →</a>
+      <a class="btn btn-ghost" href="mailto:dmitry.shishkin@gmail.com?subject=Taper%20feedback">Send feedback instead</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap-wide">
+    <div class="footer-row">
+      <div class="wordmark" style="font-size:17px;">Taper<span class="dot">.</span></div>
+      <div class="footer-links">
+        <a href="#privacy">Privacy</a>
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+    <div id="privacy">
+      <h3>Privacy, plainly</h3>
+      <p>This is an early test build with no company, account system, or server behind it yet. Here's exactly what that means today:</p>
+      <h4>What stays on your device</h4>
+      <p>Which sites you've blocked, your schedule or taper settings, and how much time you've spent on tracked sites are stored locally in your browser (chrome.storage) and never transmitted anywhere — not to a server, not to an analytics tool, not to an ad network. Uninstalling the extension deletes it.</p>
+      <h4>What I do collect</h4>
+      <p>Nothing automatically. If you email feedback or a bug report, I have whatever you sent me and your email address, kept only to reply to you.</p>
+      <h4>What changes later</h4>
+      <p>A future paid version will need an account and a server to handle sync and billing — at that point this policy gets rewritten to say exactly what's stored there, before it applies to you.</p>
+      <h4>Questions</h4>
+      <p>Email <a href="mailto:dmitry.shishkin@gmail.com">dmitry.shishkin@gmail.com</a>.</p>
+    </div>
+  </div>
+</footer>
