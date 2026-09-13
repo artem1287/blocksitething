@@ -1,0 +1,10 @@
+{
+  "name": "@taper/extension",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Chrome/Firefox/Edge Manifest V3 extension. Real Vite+CRXJS+React setup lands in Phase 2.",
+  "scripts": {},
+  "dependencies": {
+    "@taper/engine": "*"
+  }
+}

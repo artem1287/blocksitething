@@ -1,0 +1,7 @@
+{
+  "name": "@taper/website",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Next.js marketing site, deployed independently to Vercel. Real setup lands in Phase 6.",
+  "scripts": {}
+}
