@@ -1,8 +1,9 @@
 # @taper/extension
 
-Phase 2 MVP: flat manual blocklist, one flat daily schedule, a redirect-based block page, and
-today-only stats. No taper curve yet — that's Phase 3, layered on top of this without changing
-this phase's data model.
+Phase 2 built a flat manual blocklist, one flat daily schedule, and a redirect-based block page
+with today-only stats — the free tier. Phase 3 layers a premium taper plan on top, per-domain,
+without changing that free-tier data model: pace-tier curves, a hard-blocked "worst offender"
+during focus hours, real active+focused-tab time tracking, the escape valve, and streaks.
 
 ## Load it locally
 
@@ -27,6 +28,34 @@ load the same `dist` folder unpacked — CRXJS's dev server pushes updates into 
    background alarm tick) or immediately if you re-save the schedule/blocklist (storage changes
    trigger an immediate recompute, not just the alarm).
 5. Check **Today's stats** in options — the blocked visit should be counted.
+
+## Try the taper plan (Premium preview)
+
+The "Premium" gate here is a local toggle only — real billing/entitlement enforcement is Phase 4.
+
+1. In options, add a domain if you haven't, then under **Taper plan (Premium)** click **Enable
+   taper plan**. This anchors day 1 to today and switches that domain from schedule-based to
+   allowance-based blocking — the schedule section above stops applying.
+2. Pick a pace tier. To see a block quickly without waiting around, temporarily set a very small
+   floor (e.g. 0) — day 1's allowance is `baseline × (1 − frontLoadPct)`, e.g. ~76 minutes for a
+   90-minute default baseline on Gentle, so realistically you'd want to lower the per-site
+   baseline via a fresh **1–2h** vs **under 30 min** bucket pick when adding the domain, or just
+   let it run — the extension tracks real time on the domain (active *and* focused tab only) and
+   flushes every ~30s, so leaving the tab focused and idle-clicking around it will accumulate.
+3. Optionally set that same domain as **Worst offender** with focus hours covering right now —
+   it'll hard-block immediately regardless of any remaining allowance.
+4. Once the allowance is exhausted, visiting the domain redirects to the blocked page showing
+   minutes used/allowed, a suggestion, and (if the 7-day cooldown hasn't been used) an escape
+   valve — request it, wait out the 10-minute countdown shown on the page, and it should redirect
+   you back in with a one-time bonus for today only.
+5. Try **Preview change** → **Confirm** on a pace-tier edit while the plan is already active — it
+   should show "adds ~N days" and stage the change for tomorrow rather than applying it now (the
+   ratchet from Section 2.3). There's no way to fast-forward local midnight from the UI to see it
+   actually apply; that's inherently a multi-day test.
+6. The 48h baseline reconciliation and the day-3+ streak/reclaimed-time numbers are also
+   real-time-dependent — I could not exercise either end-to-end without days actually passing.
+   The logic each depends on (`computeDayIndex`, `reconciledEntryBaseline`, `nextStreakCount`,
+   `dayOutcomeRespected`) is unit-tested in isolation; the integration is unverified live.
 
 ## What I could not verify from here
 

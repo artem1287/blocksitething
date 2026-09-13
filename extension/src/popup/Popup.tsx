@@ -4,7 +4,7 @@ import { getStorage, setStorage, allocateRuleId } from "../shared/storage";
 import { isWithinSchedule } from "../lib/schedule";
 import { normalizeDomain, originPatternsFor } from "../lib/domain";
 import { toLocalDateKey } from "../lib/stats";
-import type { BlocklistEntry } from "../shared/types";
+import { DEFAULT_BASELINE_MINUTES, type BlocklistEntry } from "../shared/types";
 
 type AddStatus =
   | { kind: "idle" }
@@ -60,6 +60,7 @@ export function Popup() {
       category: "Other",
       ruleId,
       addedAt: Date.now(),
+      baselineMinutes: DEFAULT_BASELINE_MINUTES,
     };
     await setStorage({ blocklist: [...storage.blocklist, entry] });
     setStatus({ kind: "added", domain });
