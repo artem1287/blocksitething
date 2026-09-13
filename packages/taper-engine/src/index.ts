@@ -1,2 +1,7 @@
-// Pure taper-curve engine. No chrome.* or DOM dependencies — real logic lands in Phase 3.
-export const ENGINE_VERSION = "0.0.1";
+export const ENGINE_VERSION = "0.1.0";
+
+export * from "./baseline";
+export * from "./curve";
+export * from "./ratchet";
+export * from "./escapeValve";
+export * from "./rewards";
