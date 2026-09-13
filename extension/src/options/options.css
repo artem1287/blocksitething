@@ -76,6 +76,29 @@ button.remove {
   padding: 2px 6px;
 }
 
+button.secondary {
+  background: transparent;
+  color: #1a1a1a;
+  border: 1px solid #ccc;
+}
+
+.incognito-banner {
+  background: #fff4e5;
+  border: 1px solid #f0c98a;
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.incognito-banner p {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.incognito-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .entry-list {
   list-style: none;
   padding: 0;

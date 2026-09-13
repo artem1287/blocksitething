@@ -7,6 +7,7 @@ import { buildBlockRule, type BlockRule } from "../lib/rules";
 import { originPatternsFor, normalizeDomain } from "../lib/domain";
 import { toLocalDateKey } from "../lib/stats";
 import { addDaysToDateKey, dateKeyRange } from "../lib/dates";
+import { shouldTriggerPause } from "../lib/pause";
 import {
   buildTaperConfigForEntry,
   computeDayIndex,
@@ -239,4 +240,29 @@ browser.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === "local" && (changes.blocklist || changes.schedule || changes.taperPlan || changes.taperHistory)) {
     void recomputeRules();
   }
+});
+
+// ---- Pre-open pause (Section 5) — independent of the taper allowance ----
+
+const lastDomainByTab = new Map<number, string>();
+
+browser.webNavigation.onBeforeNavigate.addListener(async (details) => {
+  if (details.frameId !== 0) return; // main-frame navigations only
+
+  const domain = normalizeDomain(details.url);
+  const previousDomain = lastDomainByTab.get(details.tabId) ?? null;
+  if (domain) lastDomainByTab.set(details.tabId, domain);
+  if (!domain) return;
+
+  const { pauseSettings } = await getStorage();
+  if (!shouldTriggerPause(domain, previousDomain, pauseSettings.enabledDomains)) return;
+
+  const pauseUrl = new URL(browser.runtime.getURL("src/pause/pause.html"));
+  pauseUrl.searchParams.set("domain", domain);
+  pauseUrl.searchParams.set("return", details.url);
+  await browser.tabs.update(details.tabId, { url: pauseUrl.toString() });
+});
+
+browser.tabs.onRemoved.addListener((tabId) => {
+  lastDomainByTab.delete(tabId);
 });

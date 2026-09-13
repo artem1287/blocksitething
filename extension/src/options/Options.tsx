@@ -21,11 +21,14 @@ import { toLocalDateKey } from "../lib/stats";
 import { addDaysToDateKey } from "../lib/dates";
 import { buildTaperConfigForEntry, computeDayIndex } from "../lib/taper";
 import { SITE_CATALOG } from "../data/siteCatalog";
+import { buildExtensionDetailsUrl } from "../lib/incognito";
 import { AllowanceStepper } from "../components/AllowanceStepper";
 import {
+  DEFAULT_PAUSE_SETTINGS,
   DEFAULT_SCHEDULE,
   type BlocklistEntry,
   type DailyTaperRecord,
+  type PauseSettings,
   type PendingPlanChange,
   type Schedule,
   type TaperPlanState,
@@ -85,6 +88,13 @@ export function Options() {
   // Allowances screen (Section 6): entries with a pending edit not yet staged/saved.
   const [draftBaselines, setDraftBaselines] = useState<Record<string, number>>({});
 
+  // Incognito coverage (Section 4).
+  const [incognitoGranted, setIncognitoGranted] = useState<boolean | null>(null);
+  const [hideIncognitoPrompt, setHideIncognitoPrompt] = useState(false);
+
+  // Pre-open pause (Section 5).
+  const [pauseSettings, setPauseSettingsState] = useState<PauseSettings>(DEFAULT_PAUSE_SETTINGS);
+
   async function reload() {
     const storage = await getStorage();
     setBlocklist(storage.blocklist);
@@ -95,7 +105,42 @@ export function Options() {
     setTaperHistory(storage.taperHistory);
     setPendingPlanChange(storage.pendingPlanChange);
     if (storage.taperPlan) setDraftPlan(storage.taperPlan);
+    setHideIncognitoPrompt(storage.hideIncognitoPrompt);
+    setPauseSettingsState(storage.pauseSettings);
     setLoading(false);
+
+    const granted = await browser.extension.isAllowedIncognitoAccess();
+    setIncognitoGranted(granted);
+    // Reset-on-grant: if it's currently granted, clear any earlier dismissal, so a *later*
+    // revocation re-shows the prompt instead of leaving it dismissed forever.
+    if (granted && storage.hideIncognitoPrompt) {
+      await setStorage({ hideIncognitoPrompt: false });
+      setHideIncognitoPrompt(false);
+    }
+  }
+
+  async function handleDismissIncognitoPrompt() {
+    setHideIncognitoPrompt(true);
+    await setStorage({ hideIncognitoPrompt: true });
+  }
+
+  function handleOpenIncognitoSettings() {
+    void browser.tabs.create({ url: buildExtensionDetailsUrl(browser.runtime.id) });
+  }
+
+  async function togglePauseForDomain(domain: string) {
+    const enabledDomains = pauseSettings.enabledDomains.includes(domain)
+      ? pauseSettings.enabledDomains.filter((d) => d !== domain)
+      : [...pauseSettings.enabledDomains, domain];
+    const next = { ...pauseSettings, enabledDomains };
+    setPauseSettingsState(next);
+    await setStorage({ pauseSettings: next });
+  }
+
+  async function setPauseDuration(durationSeconds: number) {
+    const next = { ...pauseSettings, durationSeconds };
+    setPauseSettingsState(next);
+    await setStorage({ pauseSettings: next });
   }
 
   useEffect(() => {
@@ -299,6 +344,19 @@ export function Options() {
           Redo setup
         </a>
       </p>
+
+      {incognitoGranted === false && !hideIncognitoPrompt && (
+        <section className="incognito-banner">
+          <p>Private windows can otherwise skip your blocks. Turn on incognito access to cover them too.</p>
+          <div className="incognito-actions">
+            <button onClick={handleOpenIncognitoSettings}>Turn It On</button>
+            <button className="secondary" onClick={() => void handleDismissIncognitoPrompt()}>
+              Not Now
+            </button>
+          </div>
+        </section>
+      )}
+      {incognitoGranted === true && <p className="saved">Private windows are covered too.</p>}
 
       {taperPlan?.enabled && blocklist.length > 0 && (
         <section>
@@ -588,6 +646,43 @@ export function Options() {
           </>
         )}
       </section>
+
+      {blocklist.length > 0 && (
+        <section>
+          <h2>Pause Before Opening</h2>
+          <p className="subtitle" style={{ marginBottom: 12 }}>
+            A short countdown before a site opens — separate from your daily limit.
+          </p>
+          <div className="time-row" style={{ marginBottom: 14 }}>
+            <label>
+              Countdown length (seconds)
+              <input
+                type="number"
+                min={3}
+                max={30}
+                value={pauseSettings.durationSeconds}
+                onChange={(e) => void setPauseDuration(Number(e.target.value))}
+                style={{ width: 60, marginLeft: 6 }}
+              />
+            </label>
+          </div>
+          <ul className="entry-list">
+            {blocklist.map((entry) => (
+              <li key={entry.id}>
+                <span>{entry.domain}</span>
+                <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <input
+                    type="checkbox"
+                    checked={pauseSettings.enabledDomains.includes(entry.domain)}
+                    onChange={() => void togglePauseForDomain(entry.domain)}
+                  />
+                  On
+                </label>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section>
         <h2>Today's stats</h2>

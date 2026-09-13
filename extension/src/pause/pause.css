@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, sans-serif;
+  background: #1a1a1a;
+  color: white;
+}
+
+.card {
+  text-align: center;
+  max-width: 380px;
+  padding: 32px;
+}
+
+.count {
+  font-size: 56px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 12px;
+}
+
+h1 {
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+
+p {
+  color: #ccc;
+  line-height: 1.5;
+}
+
+a {
+  color: #ccc;
+  font-size: 13px;
+}

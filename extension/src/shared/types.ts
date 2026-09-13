@@ -86,7 +86,24 @@ export interface StorageSchema {
   /** Set while the ~10-minute escape-valve delay (Section 2.4) is counting down, so it survives
    *  a page reload or a service-worker restart. */
   pendingEscapeValveRequest: { domain: string; requestedAt: number; reason: string } | null;
+  /** True once the user dismisses the "enable incognito" prompt. Reset to false whenever we
+   *  observe incognito access is currently granted, so a later revocation re-surfaces it
+   *  (Section 4) instead of leaving it dismissed forever. */
+  hideIncognitoPrompt: boolean;
+  pauseSettings: PauseSettings;
 }
+
+/** The pre-open "consider before you open this" interstitial (Section 5) — independent of the
+ *  taper allowance; it only adds a moment of friction before entry. */
+export interface PauseSettings {
+  enabledDomains: string[];
+  durationSeconds: number;
+}
+
+export const DEFAULT_PAUSE_SETTINGS: PauseSettings = {
+  enabledDomains: [],
+  durationSeconds: 8,
+};
 
 export const DEFAULT_SCHEDULE: Schedule = {
   enabled: false,
@@ -106,6 +123,8 @@ export const DEFAULT_STORAGE: StorageSchema = {
   pendingPlanChange: null,
   lastProcessedDateKey: null,
   pendingEscapeValveRequest: null,
+  hideIncognitoPrompt: false,
+  pauseSettings: DEFAULT_PAUSE_SETTINGS,
 };
 
 export const DEFAULT_BASELINE_MINUTES = 90;

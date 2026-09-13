@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         blocked: "src/blocked/blocked.html",
         onboarding: "src/onboarding/onboarding.html",
+        pause: "src/pause/pause.html",
       },
     },
   },

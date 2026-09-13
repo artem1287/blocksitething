@@ -14,7 +14,7 @@ import { normalizeDomain, originPatternsFor } from "../lib/domain";
 import { getStorage, setStorage, allocateRuleId } from "../shared/storage";
 import { toLocalDateKey } from "../lib/stats";
 import { AllowanceStepper } from "../components/AllowanceStepper";
-import type { BlocklistEntry, TaperPlanState } from "../shared/types";
+import { DEFAULT_PAUSE_SETTINGS, type BlocklistEntry, type PauseSettings, type TaperPlanState } from "../shared/types";
 
 const TOTAL_STEPS = 6;
 
@@ -162,7 +162,14 @@ export function Onboarding() {
       reconciledAt: null,
     };
 
-    await setStorage({ blocklist, taperPlan, lastProcessedDateKey: todayKey });
+    // The worst offender is suggested for the pre-open pause too (Section 5) — everything else
+    // stays off by default.
+    const pauseSettings: PauseSettings =
+      worstEntry && !worstOffenderSkipped
+        ? { ...DEFAULT_PAUSE_SETTINGS, enabledDomains: [worstEntry.domain] }
+        : DEFAULT_PAUSE_SETTINGS;
+
+    await setStorage({ blocklist, taperPlan, pauseSettings, lastProcessedDateKey: todayKey });
     setFinishing(false);
     setDone(true);
   }

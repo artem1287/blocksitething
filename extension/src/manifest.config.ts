@@ -30,11 +30,14 @@ export default defineManifest({
   // "activeTab" backs the popup's "block this site" quick action (no prompt, scoped to a
   // user click). Per-site blocking access is requested at add-time via optional_host_permissions
   // below instead of declaring broad host_permissions here — see ARCHITECTURE.md.
-  permissions: ["storage", "alarms", "activeTab", "declarativeNetRequestWithHostAccess"],
+  // "webNavigation" backs the pre-open pause (Section 5) — it needs to see a navigation
+  // starting, before declarativeNetRequest-style redirects would apply, so it can redirect to
+  // the pause interstitial itself instead of the destination.
+  permissions: ["storage", "alarms", "activeTab", "declarativeNetRequestWithHostAccess", "webNavigation"],
   optional_host_permissions: ["*://*/*"],
   web_accessible_resources: [
     {
-      resources: ["src/blocked/blocked.html"],
+      resources: ["src/blocked/blocked.html", "src/pause/pause.html"],
       matches: ["<all_urls>"],
     },
   ],
