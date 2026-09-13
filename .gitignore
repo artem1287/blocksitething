@@ -2,6 +2,7 @@ node_modules/
 dist/
 build/
 *.zip
+!releases/*.zip
 .env
 .env.*
 !.env.example
