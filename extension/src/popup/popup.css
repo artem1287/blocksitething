@@ -1,0 +1,79 @@
+body {
+  width: 280px;
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  color: #1a1a1a;
+}
+
+.popup {
+  padding: 16px;
+}
+
+.status {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.status.active {
+  background: #fde8e8;
+  color: #a11;
+}
+
+.status.inactive {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.today-count {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 16px;
+}
+
+.add-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.primary {
+  background: #1a1a1a;
+  color: white;
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.secondary {
+  background: transparent;
+  color: #1a1a1a;
+  text-decoration: underline;
+  padding: 4px 0;
+}
+
+.message {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.message.error {
+  color: #a11;
+}
+
+.message.success {
+  color: #2e7d32;
+}
