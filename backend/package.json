@@ -2,6 +2,6 @@
   "name": "@taper/backend",
   "private": true,
   "version": "0.0.1",
-  "description": "Supabase project: Postgres schema, Auth, Edge Functions for Stripe webhooks and entitlement checks. Real setup lands in Phase 4.",
+  "description": "Supabase project: Postgres schema (supabase/migrations), Auth, and an Edge Function for Stripe checkout + webhooks. See README.md to apply.",
   "scripts": {}
 }
