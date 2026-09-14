@@ -6,7 +6,7 @@ import {
   pickWorstOffenderCandidate,
   splitBaselineAcrossSites,
   type CategorySelection,
-} from "../src/lib/onboarding";
+} from "../src/onboarding";
 
 describe("categoryMinutesForLevel", () => {
   it("maps each level to a positive, increasing estimate", () => {

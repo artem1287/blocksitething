@@ -1,8 +1,8 @@
 /**
- * The maintained list of categories and their popular sites (Section 3). Kept as one isolated
- * data file, not scattered through UI components, so refreshing "trending distractions" is a
- * one-file edit — not yet fetched remotely (that needs a backend, which doesn't exist yet), but
- * isolating it here is what makes that swap a config change later instead of a UI rewrite.
+ * The maintained list of categories and their popular sites. Kept as one isolated data file,
+ * shared by the extension and the website quiz, so refreshing "trending distractions" is a
+ * one-file edit — not yet fetched remotely (that needs the backend), but isolating it here is
+ * what makes that swap a config change later instead of a UI rewrite in two codebases.
  */
 export interface CatalogSite {
   domain: string;

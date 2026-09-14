@@ -2,9 +2,10 @@ import type { PaceTierName } from "@taper/engine";
 
 export type UsageLevel = "a_little" | "a_lot" | "constantly";
 
-// Category-level daily-total estimates (Section 2 step 3) — the user never sees these numbers,
-// only the plain labels. Deliberately rough: the 48h measured-baseline reconciliation
-// (see lib/taper.ts) corrects them once real tracking data exists.
+// Category-level daily-total estimates — the user never sees these numbers, only plain labels
+// (the quiz's "how much of a pull is it" self-check, see pull.ts). Deliberately rough: the 48h
+// measured-baseline reconciliation (see the extension's lib/taper.ts) corrects them once real
+// tracking data exists.
 const USAGE_LEVEL_MINUTES: Record<UsageLevel, number> = {
   a_little: 38, // "30-45m"
   a_lot: 105, // "1.5-2h"
@@ -49,7 +50,7 @@ export interface WorstOffenderCandidate {
 }
 
 /** The heaviest-flagged category's first confirmed site — offered as a one-tap suggestion
- *  (Section 2 step 5) rather than making the user type a domain from scratch. */
+ *  rather than making the user type a domain from scratch. */
 export function pickWorstOffenderCandidate(selections: CategorySelection[]): WorstOffenderCandidate | null {
   let best: CategorySelection | null = null;
   for (const selection of selections) {

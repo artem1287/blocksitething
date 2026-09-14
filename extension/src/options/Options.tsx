@@ -20,7 +20,7 @@ import { minutesToTimeString, timeStringToMinutes } from "../lib/time";
 import { toLocalDateKey } from "../lib/stats";
 import { addDaysToDateKey } from "../lib/dates";
 import { buildTaperConfigForEntry, computeDayIndex } from "../lib/taper";
-import { SITE_CATALOG } from "../data/siteCatalog";
+import { SITE_CATALOG } from "@taper/plan-builder";
 import { buildExtensionDetailsUrl } from "../lib/incognito";
 import { AllowanceStepper } from "../components/AllowanceStepper";
 import {

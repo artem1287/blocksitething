@@ -1,15 +1,16 @@
 import { useMemo, useState } from "react";
 import browser from "webextension-polyfill";
 import { DEFAULT_FLOOR_MINUTES, DEFAULT_MIN_TAPER_THRESHOLD_MINUTES } from "@taper/engine";
-import { SITE_CATALOG, findCategory } from "../data/siteCatalog";
 import {
+  SITE_CATALOG,
+  findCategory,
   baselinesForSelections,
   paceTierForLabel,
   pickWorstOffenderCandidate,
   type CategorySelection,
   type PaceLabel,
   type UsageLevel,
-} from "../lib/onboarding";
+} from "@taper/plan-builder";
 import { normalizeDomain, originPatternsFor } from "../lib/domain";
 import { getStorage, setStorage, allocateRuleId } from "../shared/storage";
 import { toLocalDateKey } from "../lib/stats";
